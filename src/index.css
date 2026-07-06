@@ -86,13 +86,15 @@
 }
 
 html {
+  height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  scroll-behavior: auto; /* Lenis handles scroll, not the browser */
+  scroll-behavior: auto;
 }
 
 body {
+  height: 100%;
   font-family: var(--font-sans);
   font-size: var(--text-1);
   line-height: 1.6;
@@ -333,13 +335,7 @@ a:hover {
 /* ── Responsive ─────────────────────────────────── */
 
 @media (max-width: 48rem) {
-  /* Kill any horizontal overflow on mobile */
-  html {
-    overflow-x: hidden;
-  }
-
   body {
-    overflow-x: hidden;
     max-width: 100vw;
   }
   /* Tighter spacing on small screens */

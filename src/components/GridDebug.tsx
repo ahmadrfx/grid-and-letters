@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 
 /**
  * Toggleable 12-column grid overlay.
@@ -44,7 +45,10 @@ export default function GridDebug() {
     };
   }, [toggle]);
 
-  return (
+  const outlet = document.getElementById("portal-outlet");
+  if (!outlet) return null;
+
+  return createPortal(
     <>
       {/* Toast notification */}
       {toast && (
@@ -85,6 +89,7 @@ export default function GridDebug() {
           ))}
         </div>
       )}
-    </>
+    </>,
+    outlet
   );
 }

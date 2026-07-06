@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { initLenis } from "./lib/lenis";
+import { useEffect, useRef } from "react";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Manifesto from "./sections/Manifesto";
 import Anatomy from "./sections/Anatomy";
 import History from "./sections/History";
@@ -25,13 +26,27 @@ import GridDebug from "./components/GridDebug";
  *   6 — Resources
  */
 export default function App() {
+  const smootherRef = useRef<ScrollSmoother | null>(null);
+
   useEffect(() => {
-    const lenis = initLenis();
-    // Store globally so Resources can call lenis.scrollTo(0)
-    (window as any).__lenis = lenis;
+    // ScrollSmoother replaces Lenis — native GSAP sync, no virtual
+    // scroll drift. smoothTouch handles mobile out of the box.
+    const smoother = ScrollSmoother.create({
+      wrapper: "#smooth-wrapper",
+      content: "#smooth-content",
+      smooth: 1,
+      smoothTouch: 0,
+    });
+    smootherRef.current = smoother;
+    (window as any).__smoother = smoother;
+
+    // Recalculate ScrollTrigger positions once web fonts finish loading
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+
     return () => {
-      lenis.destroy();
-      delete (window as any).__lenis;
+      smoother.kill();
+      smootherRef.current = null;
+      delete (window as any).__smoother;
     };
   }, []);
 

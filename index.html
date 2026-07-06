@@ -30,7 +30,13 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        <div id="root"></div>
+      </div>
+    </div>
+    <!-- Portal outlet for fixed-position elements (outside ScrollSmoother transform) -->
+    <div id="portal-outlet"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

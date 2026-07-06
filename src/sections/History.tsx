@@ -85,100 +85,68 @@ export default function History() {
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 48rem)");
-    const isMobile = mq.matches;
+    const mm = gsap.matchMedia();
 
-    const ctx = gsap.context(() => {
-      const track = trackRef.current;
-      if (!track) return;
-
-      if (isMobile) {
-        // ════════════════════════════════════════════════════
-        // MOBILE — vertical stack, one card highlighted at a time.
-        //
-        // Each card enters dim, peaks full at viewport center,
-        // then fades back to dim as it exits through the top.
-        // Two fromTo tweens meet at "center center" so the
-        // peak is seamless — scrub runs on the GSAP ticker for
-        // true per-frame interpolation.
-        // ════════════════════════════════════════════════════
-        gsap.utils.toArray<HTMLElement>(".history-card").forEach((card) => {
-          // Enter: dim → full highlight by center
-          gsap.fromTo(
-            card,
-            { opacity: 0.2, scale: 0.85 },
-            {
-              opacity: 1,
-              scale: 1,
-              ease: "power2.in",
-              scrollTrigger: {
-                trigger: card,
-                start: "top bottom",
-                end: "center center",
-                scrub: 1,
-              },
-            }
-          );
-          // Exit: full highlight → dim as it leaves the top
-          gsap.fromTo(
-            card,
-            { opacity: 1, scale: 1 },
-            {
-              opacity: 0.2,
-              scale: 0.85,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: card,
-                start: "center center",
-                end: "bottom top",
-                scrub: 1,
-              },
-            }
-          );
-        });
-
-        // Grid tightening driven by overall section scroll progress
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          onUpdate: (self) => {
-            const gap = gsap.utils.interpolate(
-              "clamp(0.5rem, 2vw, 1rem)",
-              "clamp(0.5rem, 2vw, 0.25rem)",
-              self.progress
-            );
-            document.documentElement.style.setProperty("--grid-gap", gap);
-          },
-        });
-      } else {
-        // ════════════════════════════════════════════════════
-        // DESKTOP — pinned horizontal scroll
-        // ════════════════════════════════════════════════════
-        const pin = pinRef.current;
-        if (!pin) return;
-
-        const getDistance = () => {
-          const cards = track.querySelectorAll<HTMLElement>(".history-card");
-          const last = cards[cards.length - 1];
-          if (!last) return 500;
-          const cardW = last.offsetWidth;
-          const style = window.getComputedStyle(track);
-          const padR = parseFloat(style.paddingRight) || 0;
-          const raw =
-            track.scrollWidth - padR - cardW / 2 - window.innerWidth / 2;
-          return Math.max(raw, 500);
+    mm.add(
+      {
+        isMobile: "(max-width: 48rem)",
+        reduceMotion: "(prefers-reduced-motion: reduce)",
+      },
+      (ctx) => {
+        const { isMobile, reduceMotion } = ctx.conditions as {
+          isMobile: boolean;
+          reduceMotion: boolean;
         };
+        const track = trackRef.current;
+        if (!track) return;
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: pin,
-            start: "top top",
-            end: () => `+=${getDistance()}`,
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
+        if (isMobile) {
+          // ════════════════════════════════════════════════════
+          // MOBILE — vertical stack, one card highlighted at a time.
+          // ════════════════════════════════════════════════════
+          if (reduceMotion) {
+            // Accessibility: cards are always fully visible, no scroll link
+            gsap.set(".history-card", { opacity: 1, scale: 1 });
+          } else {
+            gsap.utils.toArray<HTMLElement>(".history-card").forEach((card) => {
+              gsap.fromTo(
+                card,
+                { opacity: 0.2, scale: 0.85 },
+                {
+                  opacity: 1,
+                  scale: 1,
+                  ease: "power2.in",
+                  scrollTrigger: {
+                    trigger: card,
+                    start: "top bottom",
+                    end: "center center",
+                    scrub: 1,
+                  },
+                }
+              );
+              gsap.fromTo(
+                card,
+                { opacity: 1, scale: 1 },
+                {
+                  opacity: 0.2,
+                  scale: 0.85,
+                  ease: "power2.out",
+                  scrollTrigger: {
+                    trigger: card,
+                    start: "center center",
+                    end: "bottom top",
+                    scrub: 1,
+                  },
+                }
+              );
+            });
+          }
+
+          // Grid tightening
+          ScrollTrigger.create({
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
             onUpdate: (self) => {
               const gap = gsap.utils.interpolate(
                 "clamp(0.5rem, 2vw, 1rem)",
@@ -187,44 +155,93 @@ export default function History() {
               );
               document.documentElement.style.setProperty("--grid-gap", gap);
             },
-          },
-        });
+          });
+        } else {
+          // ════════════════════════════════════════════════════
+          // DESKTOP — pinned horizontal scroll
+          // ════════════════════════════════════════════════════
+          const pin = pinRef.current;
+          if (!pin) return;
 
-        tl.to(track, { x: () => -getDistance(), ease: "none" });
+          const getDistance = () => {
+            const cards = track.querySelectorAll<HTMLElement>(".history-card");
+            const last = cards[cards.length - 1];
+            if (!last) return 500;
+            const cardW = last.offsetWidth;
+            const style = window.getComputedStyle(track);
+            const padR = parseFloat(style.paddingRight) || 0;
+            const raw =
+              track.scrollWidth - padR - cardW / 2 - window.innerWidth / 2;
+            return Math.max(raw, 500);
+          };
 
-        // Card reveal via containerAnimation
-        gsap.utils.toArray<HTMLElement>(".history-card").forEach((card) => {
-          gsap.fromTo(
-            card,
-            { opacity: 0.25, scale: 0.9 },
-            {
-              opacity: 1,
-              scale: 1,
-              ease: "power2.out",
+          if (reduceMotion) {
+            // Accessibility: no pin, no horizontal scroll — let the section
+            // flow naturally as a vertical stack
+            gsap.set(".history-card", { opacity: 1, scale: 1 });
+          } else {
+            const tl = gsap.timeline({
               scrollTrigger: {
-                trigger: card,
-                start: "right 90%",
-                end: "left 10%",
-                containerAnimation: tl,
-                scrub: true,
+                trigger: pin,
+                start: "top top",
+                end: () => `+=${getDistance()}`,
+                pin: true,
+                scrub: 1,
+                anticipatePin: 1,
+                invalidateOnRefresh: true,
+                onUpdate: (self) => {
+                  const gap = gsap.utils.interpolate(
+                    "clamp(0.5rem, 2vw, 1rem)",
+                    "clamp(0.5rem, 2vw, 0.25rem)",
+                    self.progress
+                  );
+                  document.documentElement.style.setProperty("--grid-gap", gap);
+                },
               },
-            }
-          );
+            });
+
+            tl.to(track, { x: () => -getDistance(), ease: "none" });
+
+            gsap.utils.toArray<HTMLElement>(".history-card").forEach((card) => {
+              gsap.fromTo(
+                card,
+                { opacity: 0.25, scale: 0.9 },
+                {
+                  opacity: 1,
+                  scale: 1,
+                  ease: "power2.out",
+                  scrollTrigger: {
+                    trigger: card,
+                    start: "right 90%",
+                    end: "left 10%",
+                    containerAnimation: tl,
+                    scrub: true,
+                  },
+                }
+              );
+            });
+          }
+        }
+
+        // ── Reset grid-gap once the section is fully scrolled past ──
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "bottom top",
+          onLeave: () =>
+            document.documentElement.style.removeProperty("--grid-gap"),
+          onEnterBack: () =>
+            document.documentElement.style.removeProperty("--grid-gap"),
         });
-      }
 
-      // ── Reset grid-gap once the section is fully scrolled past ──
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "bottom top",
-        onLeave: () =>
-          document.documentElement.style.removeProperty("--grid-gap"),
-        onEnterBack: () =>
-          document.documentElement.style.removeProperty("--grid-gap"),
-      });
-    }, sectionRef);
+        // Return cleanup (matchMedia calls this when conditions change)
+        return () => {
+          document.documentElement.style.removeProperty("--grid-gap");
+        };
+      },
+      sectionRef
+    );
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   return (

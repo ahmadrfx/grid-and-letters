@@ -9,7 +9,7 @@ import gsap from "gsap";
  * each title in a face that belongs to its category.
  *
  * Footer:
- *   [End] marker — click to Lenis.scrollTo(0) back to the top.
+ *   [End] marker — click to scroll back to the top.
  */
 
 /* ── Resource data ──────────────────────────────────── */
@@ -135,12 +135,11 @@ const CATEGORIES: ResourceCategory[] = [
 /* ── Scroll-to-top helper ────────────────────────────── */
 
 function scrollToTop() {
-  const lenis = (window as any).__lenis;
-  if (lenis?.scrollTo) {
-    lenis.scrollTo(0, { duration: 1.5, easing: (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t });
-    // easeInOutQuad — gentler than the exponential-out used for wheel
+  const smoother = (window as any).__smoother;
+  if (smoother) {
+    smoother.scrollTo(0, true);
   } else {
-    window.scrollTo({ top: 0, behavior: "instant" });
+    gsap.to(window, { duration: 1.5, scrollTo: { y: 0 }, ease: "power2.inOut" });
   }
 }
 

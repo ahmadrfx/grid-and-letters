@@ -1,8 +1,10 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
-// Register the ScrollTrigger plugin once
-gsap.registerPlugin(ScrollTrigger);
+// Register GSAP plugins once — ScrollSmoother replaces Lenis
+gsap.registerPlugin(ScrollTrigger, ScrollSmoother, ScrollToPlugin);
 
 /**
  * Reveal each child word-by-word on scroll.
