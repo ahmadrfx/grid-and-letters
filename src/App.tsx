@@ -27,7 +27,8 @@ import GridDebug from "./components/GridDebug";
 export default function App() {
   useEffect(() => {
     const lenis = initLenis();
-    // Store globally so Resources can call lenis.scrollTo(0)
+    // touch devices get native scroll — no Lenis to store or destroy
+    if (!lenis) return;
     (window as any).__lenis = lenis;
     return () => {
       lenis.destroy();
