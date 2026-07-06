@@ -17,19 +17,23 @@ export default function GridDebug() {
     toastTimer.current = setTimeout(() => setToast(null), 1200);
   }, []);
 
+  const toggleGrid = useCallback(() => {
+    setVisible((v) => {
+      showToast(v ? "Grid OFF" : "Grid ON");
+      return !v;
+    });
+  }, [showToast]);
+
   const toggle = useCallback(
     (e: KeyboardEvent) => {
       if (
         e.code === "Backquote" &&
         !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
       ) {
-        setVisible((v) => {
-          showToast(v ? "Grid OFF" : "Grid ON");
-          return !v;
-        });
+        toggleGrid();
       }
     },
-    [showToast]
+    [toggleGrid]
   );
 
   useEffect(() => {
@@ -63,6 +67,15 @@ export default function GridDebug() {
           {toast}
         </div>
       )}
+
+      {/* Mobile toggle button — hidden on desktop via CSS */}
+      <button
+        className="grid-toggle-btn"
+        onClick={toggleGrid}
+        aria-label={visible ? "Hide grid overlay" : "Show grid overlay"}
+      >
+        <span className="mono">[#]</span>
+      </button>
 
       {/* Grid overlay */}
       {visible && (

@@ -298,6 +298,21 @@ a:hover {
 .font-geo { font-family: var(--font-geo); }
 .font-mono { font-family: var(--font-mono); }
 
+/* ── Manifesto instruction (bottom-left) ────────────── */
+.manifesto-instruction {
+  grid-column: 2 / span 3;
+  align-self: end;
+  color: var(--color-text-muted);
+  margin-top: auto;
+  padding-bottom: var(--grid-margin);
+}
+
+/* ── Mobile grid toggle button ──────────────────────── */
+/* Hidden on desktop */
+.grid-toggle-btn {
+  display: none;
+}
+
 /* ── History — horizontal track & cards ─────────────── */
 
 .history-track {
@@ -369,6 +384,39 @@ a:hover {
     font-weight: 600 !important;
     line-height: 1.05 !important;
     letter-spacing: -0.015em !important;
+  }
+
+  /* Floating grid toggle button — top-right on mobile */
+  .grid-toggle-btn {
+    display: flex;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2001;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .grid-toggle-btn:hover,
+  .grid-toggle-btn:active {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .grid-toggle-btn .mono {
+    font-size: 0.75rem;
+  }
+
+  /* Hide the keyboard instruction — mobile has the [#] button instead */
+  .manifesto-instruction {
+    display: none;
   }
 
   /*

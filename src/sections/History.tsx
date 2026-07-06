@@ -94,24 +94,40 @@ export default function History() {
 
       if (isMobile) {
         // ════════════════════════════════════════════════════
-        // MOBILE — vertical stack, one card highlighted at a time
+        // MOBILE — vertical stack, one card highlighted at a time.
+        // Each card fades in as it approaches viewport center,
+        // peaks full at center, then fades out toward the top.
+        //
+        // scrub uses a numeric lerp (1.5s) so the transition is
+        // smooth and eased rather than snapping to scroll position.
         // ════════════════════════════════════════════════════
         gsap.utils.toArray<HTMLElement>(".history-card").forEach((card) => {
+          // Phase 1 — dim at entry → full at center
           gsap.fromTo(
             card,
-            { opacity: 0.3, scale: 0.88 },
+            { opacity: 0.2, scale: 0.85 },
             {
               opacity: 1,
               scale: 1,
-              ease: "power2.out",
               scrollTrigger: {
                 trigger: card,
-                start: "top 75%",
-                end: "bottom 25%",
-                scrub: true,
+                start: "bottom bottom",
+                end: "center center",
+                scrub: 1.5,
               },
             }
           );
+          // Phase 2 — full at center → dim at exit
+          gsap.to(card, {
+            opacity: 0.2,
+            scale: 0.85,
+            scrollTrigger: {
+              trigger: card,
+              start: "center center",
+              end: "top top",
+              scrub: 1.5,
+            },
+          });
         });
 
         // Grid tightening driven by overall section scroll progress

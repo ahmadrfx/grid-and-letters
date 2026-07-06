@@ -98,14 +98,7 @@ export default function Manifesto() {
 
       {/* Grid annotation — tiny text at bottom left */}
       <p
-        className="mono"
-        style={{
-          gridColumn: "2 / span 3",
-          alignSelf: "end",
-          color: "var(--color-text-muted)",
-          marginTop: "auto",
-          paddingBottom: "var(--grid-margin)",
-        }}
+        className="mono manifesto-instruction"
       >
         Press <kbd style={{ color: "var(--color-accent)" }}>`</kbd> to toggle the grid overlay
         <br />
