@@ -11,11 +11,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
  *
  * Call once in App mount. Clean up with `lenis.destroy()` on unmount.
  */
-export function initLenis(): Lenis | null {
-  // Native scroll is already smooth on touch devices — skip Lenis
-  // to avoid touch-event conflicts on real phones/tablets.
-  if ("ontouchstart" in window || navigator.maxTouchPoints > 0) return null;
-
+export function initLenis(): Lenis {
   const lenis = new Lenis({
     duration: 1.2,
     easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // exponential out
