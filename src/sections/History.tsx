@@ -95,39 +95,46 @@ export default function History() {
       if (isMobile) {
         // ════════════════════════════════════════════════════
         // MOBILE — vertical stack, one card highlighted at a time.
-        // Each card fades in as it approaches viewport center,
-        // peaks full at center, then fades out toward the top.
         //
-        // scrub uses a numeric lerp (1.5s) so the transition is
-        // smooth and eased rather than snapping to scroll position.
+        // Each card enters dim, peaks full at viewport center,
+        // then fades back to dim as it exits through the top.
+        // Two fromTo tweens meet at "center center" so the
+        // peak is seamless — scrub runs on the GSAP ticker for
+        // true per-frame interpolation.
         // ════════════════════════════════════════════════════
         gsap.utils.toArray<HTMLElement>(".history-card").forEach((card) => {
-          // Phase 1 — dim at entry → full at center
+          // Enter: dim → full highlight by center
           gsap.fromTo(
             card,
             { opacity: 0.2, scale: 0.85 },
             {
               opacity: 1,
               scale: 1,
+              ease: "power2.in",
               scrollTrigger: {
                 trigger: card,
-                start: "bottom bottom",
+                start: "top bottom",
                 end: "center center",
-                scrub: 1.5,
+                scrub: 1,
               },
             }
           );
-          // Phase 2 — full at center → dim at exit
-          gsap.to(card, {
-            opacity: 0.2,
-            scale: 0.85,
-            scrollTrigger: {
-              trigger: card,
-              start: "center center",
-              end: "top top",
-              scrub: 1.5,
-            },
-          });
+          // Exit: full highlight → dim as it leaves the top
+          gsap.fromTo(
+            card,
+            { opacity: 1, scale: 1 },
+            {
+              opacity: 0.2,
+              scale: 0.85,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: card,
+                start: "center center",
+                end: "bottom top",
+                scrub: 1,
+              },
+            }
+          );
         });
 
         // Grid tightening driven by overall section scroll progress
